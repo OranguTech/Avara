@@ -19,7 +19,7 @@
 #include "Parser.h"
 #include "pugixml.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <sstream>

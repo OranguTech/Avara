@@ -39,8 +39,8 @@
 #ifndef SDL_quit_h_
 #define SDL_quit_h_
 
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_error.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_error.h>
 
 /* There are no functions directly affecting the quit event */
 

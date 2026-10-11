@@ -2,7 +2,7 @@
 #include "AudioFile.h"
 #include "CHuffProcessor.h"
 #include "FastMat.h"
-#include "SDL2/SDL.h"
+#include <SDL3/SDL.h>
 #include "SoundSystemDefines.h"
 #include "BasePath.h"
 #include "Memory.h"

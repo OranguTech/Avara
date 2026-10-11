@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include <SDL2/SDL_log.h>
+#include <SDL3/SDL_log.h>
 #include "BasePath.h"
 #include "AssetManager.h"
 #include "CAvaraApp.h"

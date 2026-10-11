@@ -16,7 +16,7 @@
 #include "Debug.h"
 #include "System.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 
 #define kInitialRetransmitTime    (2000 / MSEC_PER_GET_CLOCK)  // 2 seconds

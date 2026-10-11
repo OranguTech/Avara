@@ -1,7 +1,7 @@
 #include "System.h"
 #include "Debug.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <iterator>
 #include <map>
 #include <string>

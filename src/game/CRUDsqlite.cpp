@@ -7,7 +7,7 @@
 
 #include "CRUDsqlite.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <stdexcept>   // runtime_error
 #include "Debug.h"
 

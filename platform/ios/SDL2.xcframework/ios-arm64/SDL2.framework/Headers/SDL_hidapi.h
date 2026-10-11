@@ -53,9 +53,9 @@
 #ifndef SDL_hidapi_h_
 #define SDL_hidapi_h_
 
-#include <SDL2/SDL_stdinc.h>
+#include <SDL3/SDL_stdinc.h>
 
-#include <SDL2/begin_code.h>
+#include <SDL3/begin_code.h>
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -436,7 +436,7 @@ extern DECLSPEC void SDLCALL SDL_hid_ble_scan(SDL_bool active);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL2/close_code.h>
+#include <SDL3/close_code.h>
 
 #endif /* SDL_hidapi_h_ */
 

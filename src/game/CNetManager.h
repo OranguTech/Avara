@@ -17,7 +17,7 @@
 #include "PlayerConfig.h"
 #include "CPlayerManager.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <string>
 #include <map>
 #include <vector>

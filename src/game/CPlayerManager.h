@@ -13,7 +13,7 @@
 #include "KeyFuncs.h"
 #include "PlayerConfig.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <unordered_map>
 #include <deque>
 #include <string>

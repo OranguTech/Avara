@@ -28,10 +28,10 @@
 #ifndef SDL_pixels_h_
 #define SDL_pixels_h_
 
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_endian.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_endian.h>
 
-#include <SDL2/begin_code.h>
+#include <SDL3/begin_code.h>
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -679,7 +679,7 @@ extern DECLSPEC void SDLCALL SDL_CalculateGammaRamp(float gamma, Uint16 * ramp);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL2/close_code.h>
+#include <SDL3/close_code.h>
 
 #endif /* SDL_pixels_h_ */
 

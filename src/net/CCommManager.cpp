@@ -13,7 +13,7 @@
 #include "System.h"
 #include "Debug.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 /*
 **	Initialize the packet buffer queues and allocate space

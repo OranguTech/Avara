@@ -9,7 +9,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #define SKY_VERT "sky_vert.glsl"
 #define SKY_FRAG "sky_frag.glsl"

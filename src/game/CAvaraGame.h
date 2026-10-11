@@ -16,7 +16,7 @@
 #include "CNetManager.h"
 #include "LevelInfo.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <string>
 #include <memory>
 #include <set>

@@ -28,12 +28,12 @@
 #ifndef SDL_keyboard_h_
 #define SDL_keyboard_h_
 
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_video.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_video.h>
 
-#include <SDL2/begin_code.h>
+#include <SDL3/begin_code.h>
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -354,7 +354,7 @@ extern DECLSPEC SDL_bool SDLCALL SDL_IsScreenKeyboardShown(SDL_Window *window);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL2/close_code.h>
+#include <SDL3/close_code.h>
 
 #endif /* SDL_keyboard_h_ */
 

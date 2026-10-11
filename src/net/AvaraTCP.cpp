@@ -28,7 +28,7 @@ typedef signed long long int ssize_t;
 
 #include "Memory.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #ifndef _WIN32
 #include <unistd.h>

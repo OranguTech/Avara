@@ -45,12 +45,12 @@
 #ifndef SDL_joystick_h_
 #define SDL_joystick_h_
 
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_guid.h>
-#include <SDL2/SDL_mutex.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_guid.h>
+#include <SDL3/SDL_mutex.h>
 
-#include <SDL2/begin_code.h>
+#include <SDL3/begin_code.h>
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -1081,7 +1081,7 @@ extern DECLSPEC SDL_JoystickPowerLevel SDLCALL SDL_JoystickCurrentPowerLevel(SDL
 #ifdef __cplusplus
 }
 #endif
-#include <SDL2/close_code.h>
+#include <SDL3/close_code.h>
 
 #endif /* SDL_joystick_h_ */
 

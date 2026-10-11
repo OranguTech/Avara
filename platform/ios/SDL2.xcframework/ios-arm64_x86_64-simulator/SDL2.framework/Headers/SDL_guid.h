@@ -31,10 +31,10 @@
 #ifndef SDL_guid_h_
 #define SDL_guid_h_
 
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_error.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_error.h>
 
-#include <SDL2/begin_code.h>
+#include <SDL3/begin_code.h>
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -100,7 +100,7 @@ extern DECLSPEC SDL_GUID SDLCALL SDL_GUIDFromString(const char *pchGUID);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL2/close_code.h>
+#include <SDL3/close_code.h>
 
 #endif /* SDL_guid_h_ */
 

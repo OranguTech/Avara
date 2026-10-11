@@ -2,7 +2,7 @@
 
 #include "CWindow.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <json.hpp>
 #include <string>
 #include <vector>

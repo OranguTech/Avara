@@ -28,14 +28,14 @@
 #ifndef SDL_gesture_h_
 #define SDL_gesture_h_
 
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_video.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_video.h>
 
-#include <SDL2/SDL_touch.h>
+#include <SDL3/SDL_touch.h>
 
 
-#include <SDL2/begin_code.h>
+#include <SDL3/begin_code.h>
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -110,7 +110,7 @@ extern DECLSPEC int SDLCALL SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWo
 #ifdef __cplusplus
 }
 #endif
-#include <SDL2/close_code.h>
+#include <SDL3/close_code.h>
 
 #endif /* SDL_gesture_h_ */
 

@@ -4,7 +4,7 @@
 #include "ColorManager.h"
 #include "Preferences.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <fstream>
 #include <nanogui/nanogui.h>
 #include <string>
