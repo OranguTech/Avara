@@ -533,7 +533,8 @@ void CAvaraGame::PreSendFrameActions() {
            topSentFrame - frameNumber < MAX_DYNAMIC_LT / fpsScale &&
            SDL_GetTicks() >= nextScheduledFrame + frameTime*(topSentFrame-frameNumber-FRAME_OFFSET)) {
         itsNet->FrameAction();
-        DBG_Log("presend", "fn=%d, preSent frame #%d, N=%d, ahead=%d, start=%d time=%d nSF=%d\n", frameNumber, topSentFrame, preSendCount, topSentFrame - frameNumber, frameStart, SDL_GetTicks(), nextScheduledFrame);
+        //SDL3 TODO REVIEW
+        DBG_Log("presend", "fn=%d, preSent frame #%d, N=%d, ahead=%d, start=%d time=%d nSF=%d\n", frameNumber, topSentFrame, preSendCount, topSentFrame - frameNumber, frameStart, int(SDL_GetTicks()), nextScheduledFrame);
         preSendCount--;
     }
 }
@@ -840,10 +841,12 @@ void CAvaraGame::GameStart() {
     // SDL_ShowCursor(SDL_DISABLE);
     // SDL_CaptureMouse(SDL_TRUE);
 
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    //SDL3 TODO FIX OMGWTFBBQ Need the SDL window
+    //SDL_SetWindowRelativeMouseMode(mSDLWindow, true);
 #ifdef WIN32
 #else
-    SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1");
+    //SDL3 "relative mode is always implemented at the hardware level or reported as unavailable"
+    //SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1");
 #endif
     // HideCursor();
     // FlushEvents(everyEvent, 0);
@@ -1087,8 +1090,9 @@ CPlayerManager *CAvaraGame::FindPlayerManager(CAbstractPlayer *thePlayer) {
 
 void CAvaraGame::StopGame() {
     soundHub->HushFlag(true);
-    SDL_SetRelativeMouseMode(SDL_FALSE);
-    SDL_StartTextInput();
+    //SDL3 TODO FIX OMGWTFBBQ Need the SDL window
+    //SDL_SetWindowRelativeMouseMode(mSDLWindow, false);
+    //SDL_StartTextInput();
     // SDL_CaptureMouse(SDL_FALSE);
     // SDL_ShowCursor(SDL_ENABLE);
 }

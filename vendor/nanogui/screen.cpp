@@ -18,9 +18,9 @@
 #include <nanogui/popup.h>
 #include <iostream>
 #include <algorithm>
-
-#include <SDL3/SDL_syswm.h>
-
+#include <SDL3/SDL.h>
+//#include <SDL3/SDL_syswm.h>
+//SDL3 https://wiki.libsdl.org/SDL3/README-migration#sdl_syswmh
 #if defined(_WIN32)
     #include <windows.h>
 #endif
@@ -152,15 +152,17 @@ Screen::Screen(const Vector2i &size, const std::string &caption, bool resizable,
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, nSamples);
     }
 
-    int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
+    int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY;
     if (resizable) {
         flags |= SDL_WINDOW_RESIZABLE;
     }
     if (fullscreen) {
-        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        //SDL3
+        //flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
 
-    mSDLWindow = SDL_CreateWindow(caption.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, size.x, size.y, flags);
+    //SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+    mSDLWindow = SDL_CreateWindow(caption.c_str(),size.x, size.y,  flags);
     mWindowID = SDL_GetWindowID(mSDLWindow);
     mGLContext = SDL_GL_CreateContext(mSDLWindow);
 
@@ -185,7 +187,7 @@ Screen::Screen(const Vector2i &size, const std::string &caption, bool resizable,
     }
 #endif
 
-    SDL_GL_GetDrawableSize(mSDLWindow, &mFBSize[0], &mFBSize[1]);
+    SDL_GetWindowSizeInPixels(mSDLWindow, &mFBSize[0], &mFBSize[1]);
     glViewport(0, 0, mFBSize[0], mFBSize[1]);
     glClearColor(mBackground[0], mBackground[1], mBackground[2], mBackground[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -211,7 +213,7 @@ void Screen::initialize(SDL_Window *window, bool shutdownSDLOnDestruct) {
     mWindowID = SDL_GetWindowID(mSDLWindow);
     mShutdownSDLOnDestruct = shutdownSDLOnDestruct;
     SDL_GetWindowSize(mSDLWindow, &mSize[0], &mSize[1]);
-    SDL_GL_GetDrawableSize(mSDLWindow, &mFBSize[0], &mFBSize[1]);
+    SDL_GetWindowSizeInPixels(mSDLWindow, &mFBSize[0], &mFBSize[1]);
 
     mPixelRatio = get_pixel_ratio(window);
 
@@ -268,12 +270,12 @@ void Screen::initialize(SDL_Window *window, bool shutdownSDLOnDestruct) {
     mLastDrawTime = 0;
     __nanogui_screens.push_back(this);
 
-    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::Arrow, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW)));
-    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::IBeam, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM)));
+    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::Arrow, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT)));
+    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::IBeam, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_TEXT)));
     mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::Crosshair, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR)));
-    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::Hand, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND)));
-    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::HResize, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE)));
-    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::VResize, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS)));
+    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::Hand, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER)));
+    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::HResize, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_EW_RESIZE)));
+    mCursors.insert(std::pair<Cursor, SDL_Cursor *>(Cursor::VResize, SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NS_RESIZE)));
 
     /// Fixes retina display-related font rendering issue (#185)
     nvgBeginFrame(mNVGContext, mSize[0], mSize[1], mPixelRatio);
@@ -290,7 +292,7 @@ Screen::~Screen() {
     }*/
     __nanogui_screens.erase(std::find(__nanogui_screens.begin(), __nanogui_screens.end(), this));
     for (auto it = mCursors.begin(); it != mCursors.end(); it++) {
-        SDL_FreeCursor(it->second);
+        SDL_DestroyCursor(it->second);
     }
     if (mNVGContext) {
 #if defined(AVARA_GLES)
@@ -672,7 +674,9 @@ bool Screen::handleSDLEvent(SDL_Event &event) {
         case SDL_EVENT_KEY_UP :
             if(event.key.windowID != mWindowID)
                 return false;
-            return keyCallbackEvent(event.key.keysym.sym, event.key.keysym.scancode, event.key.state, event.key.keysym.mod);
+            // SDL3 TODO REVIEW: keyboard events use `down` instead of `state`.
+            return keyCallbackEvent(event.key.key, event.key.scancode,
+                                   event.key.down ? 1 : 0, event.key.mod);
             break;
 
         case SDL_EVENT_TEXT_INPUT :
@@ -686,7 +690,8 @@ bool Screen::handleSDLEvent(SDL_Event &event) {
         case SDL_EVENT_MOUSE_BUTTON_UP :
             if(event.button.windowID != mWindowID)
                 return false;
-            return mouseButtonCallbackEvent(event.button.button, event.button.state, 0);
+            // SDL3: mouse button events use `down` instead of `state`.
+            return mouseButtonCallbackEvent(event.button.button, event.button.down ? 1 : 0, 0);
             break;
 
         case SDL_EVENT_MOUSE_WHEEL :
@@ -700,22 +705,20 @@ bool Screen::handleSDLEvent(SDL_Event &event) {
                 return false;
             return cursorPosCallbackEvent(event.motion.x, event.motion.y);
             break;
-
-        case SDL_WINDOWEVENT:
-            if(event.window.windowID != mWindowID)
-                return false;
-            switch(event.window.event) {
-                case SDL_EVENT_WINDOW_RESIZED :
-                case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED :
-                    return resizeCallbackEvent(event.window.data1, event.window.data2);
-                    break;
-
-                case SDL_EVENT_WINDOW_FOCUS_GAINED :
-                case SDL_EVENT_WINDOW_FOCUS_LOST :
-                    return focusEvent(event.window.event == SDL_EVENT_WINDOW_FOCUS_GAINED);
-                    break;
-            }
+            // SDL3 https://wiki.libsdl.org/SDL3/README-migration#sdl_eventsh
+            //SDL3 TODO 
+        case SDL_EVENT_WINDOW_RESIZED:
+        case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED: {
+            return resizeCallbackEvent(event.window.data1, event.window.data2);
             break;
+        }
+        case SDL_EVENT_WINDOW_FOCUS_GAINED:
+        case SDL_EVENT_WINDOW_FOCUS_LOST:
+            return focusEvent(event.type == SDL_EVENT_WINDOW_FOCUS_GAINED);
+            break;
+        //}
+        //if (event.window.windowID != mWindowID)
+
     }
     return false;
 }

@@ -50,7 +50,7 @@ void init() {
         setlocale(LC_NUMERIC, "C");
     #endif
 
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO) != true) //SDL3
         throw std::runtime_error("Could not initialize SDL!");
 
     setTime(0);
@@ -89,7 +89,7 @@ void mainloop(int refresh) {
             /* Wait for mouse/keyboard or empty refresh events */
             int result = SDL_WaitEventTimeout(&theEvent, throttle);  // uses SDL_PollEvent(&theEvent) when throttle == 0
             if(result) {
-                if (theEvent.type == SDL_QUIT) {
+                if (theEvent.type == SDL_EVENT_QUIT) { //SDL3
                     mainloop_active = false;
                 }
                 for(auto screen : __nanogui_screens) {

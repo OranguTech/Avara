@@ -109,7 +109,7 @@ LegacyOpenGLRenderer::LegacyOpenGLRenderer(SDL_Window *window) : AbstractRendere
     this->window = window;
 
     GLsizei w, h;
-    SDL_GL_GetDrawableSize(window, &w, &h);
+    SDL_GetWindowSizeInPixels(window, &w, &h);
     viewParams->viewPixelDimensions.h = w;
     viewParams->viewPixelDimensions.v = h;
 
