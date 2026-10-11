@@ -402,7 +402,7 @@ std::string CUDPComm::FormatConnectionsList() {
 //   172.16.0.0/12 ( Range: 172.16.0.0 – 172.31.255.255 )
 //   192.168.0.0/16 ( Range: 192.168.0.0 – 192.168.255.255 )
 bool CUDPComm::IsLAN(uint32_t host) {
-    ip_addr ipaddr = SDL_SwapBE32(host);
+    ip_addr ipaddr = SDL_Swap32BE(host);
     uint8_t ip1 = (ipaddr >> 24);
     uint8_t ip2 = ((ipaddr >> 16) & 0xff);
     return ((ip1 == 127) ||  // localhost loopback
@@ -1467,7 +1467,7 @@ OSErr CUDPComm::ContactServer(IPaddress &serverAddr) {
             */
 
             if (SDL_WaitEventTimeout(&theEvent, 1)) {
-                if (theEvent.type == SDL_KEYDOWN && theEvent.key.keysym.sym == SDLK_ESCAPE) {
+                if (theEvent.type == SDL_EVENT_KEY_DOWN && theEvent.key.key == SDLK_ESCAPE) {
                     rejectReason = 1;
                 }
             }

@@ -252,7 +252,7 @@ void LegacyOpenGLRenderer::ApplyPrefs(std::optional<std::string> name) {
 
 void LegacyOpenGLRenderer::ApplyProjection()
 {
-    SDL_GL_GetDrawableSize(this->window, &resolution[0], &resolution[1]);
+    SDL_GetWindowSizeInPixels(this->window, &resolution[0], &resolution[1]);
 
     glm::mat4 proj = glm::scale(
         glm::perspective(

@@ -333,12 +333,12 @@ void UDPWrite(int sock, UDPpacket *packet, WriteCompleteProc callback, void *use
 
 std::string FormatHostPort(uint32_t host, uint16_t port) {
     std::ostringstream os;
-    ip_addr ipaddr = SDL_SwapBE32(host);
+    ip_addr ipaddr = SDL_Swap32BE(host);
     os << (ipaddr >> 24) << "."
        << ((ipaddr >> 16) & 0xff) << "."
        << ((ipaddr >> 8) & 0xff) << "."
        << (ipaddr & 0xff) <<  ":"
-       << SDL_SwapBE16(port);
+       << SDL_Swap16BE(port);
     return os.str();
 }
 

@@ -302,7 +302,7 @@ void ModernOpenGLRenderer::ApplyPrefs(std::optional<std::string> name) {
 
 void ModernOpenGLRenderer::ApplyProjection()
 {
-    SDL_GL_GetDrawableSize(this->window, &resolution[0], &resolution[1]);
+    SDL_GetWindowSizeInPixels(this->window, &resolution[0], &resolution[1]);
 
     glm::mat4 proj = glm::scale(
         glm::perspective(
@@ -366,7 +366,7 @@ void ModernOpenGLRenderer::UpdateViewRect(int width, int height, float pixelRati
     AbstractRenderer::UpdateViewRect(width, height, pixelRatio);
 
     GLsizei w, h;
-    SDL_GL_GetDrawableSize(window, &w, &h);
+    SDL_GetWindowSizeInPixels(window, &w, &h);
 
     AdjustFramebuffer(0, w, h);
     AdjustFramebuffer(1, w, h);

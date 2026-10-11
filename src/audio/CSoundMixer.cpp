@@ -205,7 +205,7 @@ void CSoundMixer::ISoundMixer(Fixed sampRate,
 
         SDL_memset(&want, 0, sizeof(want));
         want.freq = samplingRate / 65536;
-        want.format = AUDIO_S16;
+        want.format = SDL_AUDIO_S16LE;
         want.channels = 2;
         want.samples = soundBufferSize;
         want.callback = AudioCallback;
@@ -218,7 +218,7 @@ void CSoundMixer::ISoundMixer(Fixed sampRate,
                 want.samples,
                 want.size);
     }
-    SDL_PauseAudioDevice(outputDevice, 0);
+    SDL_ResumeAudioDevice(outputDevice);
 }
 
 void CSoundMixer::PrepareScaleLookup() {
@@ -282,7 +282,7 @@ void CSoundMixer::Dispose() {
     short i;
     MixerInfo *mix;
 
-    SDL_PauseAudioDevice(outputDevice, 1);
+    SDL_PauseAudioDevice(outputDevice);
     SDL_CloseAudioDevice(outputDevice);
 
     if (motionLink) {

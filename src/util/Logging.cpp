@@ -23,7 +23,7 @@ void Logging::OpenLog() {
             SDL_Log("Failed to open log file at %s.", logPath.c_str());
         }
         else {
-            SDL_LogSetOutputFunction(Logging::Log, nullptr);
+            SDL_SetLogOutputFunction(Logging::Log, nullptr);
         }
     }
     catch (std::exception e) {
@@ -36,7 +36,7 @@ void Logging::Log(void *userdata, int category, SDL_LogPriority priority, const 
         std::time_t t = std::time(nullptr);
         std::tm tm = *std::localtime(&t);
         logFile << std::put_time(&tm, "%Y%m%d %H%M%S ");
-        logFile << SDL_GetTicks64() << " " << _priority_names[priority] << ": " << message << "\n";
+        logFile << SDL_GetTicks() << " " << _priority_names[priority] << ": " << message << "\n";
         logFile.flush();
     }
     printf("%s: %s\n", _priority_names[priority], message);

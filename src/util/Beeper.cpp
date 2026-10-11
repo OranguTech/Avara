@@ -26,7 +26,7 @@ void Beep() {
     
     if (!beepDevice) {
         beepDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
-        SDL_PauseAudioDevice(beepDevice, 0);
+        SDL_ResumeAudioDevice(beepDevice);
     }
 
     if (beepLoaded && beepDevice) {

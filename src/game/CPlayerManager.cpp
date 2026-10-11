@@ -283,7 +283,7 @@ void CPlayerManagerImpl::HandleEvent(SDL_Event &event) {
     }
 
     switch (event.type) {
-        case SDL_KEYDOWN:
+        case SDL_EVENT_KEY_DOWN :
             // only add to keysDown if it's NOT from a keyboard repeat
             if (event.key.repeat == 0) {
                 HandleKeyDown(keyMap[event.key.keysym.scancode]);
@@ -313,23 +313,23 @@ void CPlayerManagerImpl::HandleEvent(SDL_Event &event) {
             }
 
             break;
-        case SDL_TEXTINPUT:
+        case SDL_EVENT_TEXT_INPUT :
             if (keyboardActive) {
                 for(char* a_char = event.text.text; *a_char; ++a_char) {
                     inputBuffer.push_back(*a_char);
                 }
             }
             break;
-        case SDL_KEYUP:
+        case SDL_EVENT_KEY_UP :
             HandleKeyUp(keyMap[event.key.keysym.scancode]);
             break;
-        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_EVENT_GAMEPAD_BUTTON_DOWN :
             HandleKeyDown(controllerButtonMap[event.cbutton.button]);
             break;
-        case SDL_CONTROLLERBUTTONUP:
+        case SDL_EVENT_GAMEPAD_BUTTON_UP :
             HandleKeyUp(controllerButtonMap[event.cbutton.button]);
             break;
-        case SDL_MOUSEBUTTONDOWN:
+        case SDL_EVENT_MOUSE_BUTTON_DOWN :
             if(event.button.button == SDL_BUTTON_RIGHT) {
                 HandleKeyDown(keyMap[SDL_SCANCODE_APP1]);
             }
@@ -342,7 +342,7 @@ void CPlayerManagerImpl::HandleEvent(SDL_Event &event) {
             }
 
             break;
-        case SDL_MOUSEBUTTONUP:
+        case SDL_EVENT_MOUSE_BUTTON_UP :
             if(event.button.button == SDL_BUTTON_RIGHT) {
                 HandleKeyUp(keyMap[SDL_SCANCODE_APP1]);
             }
@@ -354,7 +354,7 @@ void CPlayerManagerImpl::HandleEvent(SDL_Event &event) {
                 buttonStatus &= ~kbuIsDown;
             }
             break;
-        case SDL_MOUSEMOTION:
+        case SDL_EVENT_MOUSE_MOTION :
             int xrel = event.motion.xrel, yrel = event.motion.yrel;
             xrel *= itsGame->sensitivity;
             yrel *= itsGame->sensitivity;
