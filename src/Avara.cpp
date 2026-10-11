@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 
     // Init SDL and nanogui.
     init();
-
+    SDL_InitSubSystem(SDL_INIT_AUDIO); //SDL3 Requirement.
     // SDL_LogSetOutputFunction(&NullLogger, NULL);
 
     // Init Avara stuff.

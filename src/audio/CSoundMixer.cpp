@@ -207,16 +207,18 @@ void CSoundMixer::ISoundMixer(Fixed sampRate,
         want.freq = samplingRate / 65536;
         want.format = SDL_AUDIO_S16LE;
         want.channels = 2;
-        want.samples = soundBufferSize;
+        /* want.samples = soundBufferSize;
         want.callback = AudioCallback;
-        want.userdata = this;
-        outputDevice = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+        want.userdata = this; */
+        //SDL3 TODO
+        outputDevice = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, const_cast<SDL_AudioSpec*>(&want));
         SDL_Log("Sound device (id=%d): format=%d channels=%d samples=%d size=%d\n",
                 outputDevice,
                 want.format,
-                want.channels,
-                want.samples,
-                want.size);
+                want.channels
+                /* want.samples,
+                want.size */
+            );
     }
     SDL_ResumeAudioDevice(outputDevice);
 }

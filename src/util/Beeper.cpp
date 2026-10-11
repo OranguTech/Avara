@@ -7,7 +7,7 @@
 SDL_AudioSpec wavSpec;
 uint32_t wavLength;
 uint8_t *wavBuffer;
-SDL_AudioDeviceID beepDevice = 0;
+SDL_AudioStream *beepDevice = NULL;
 bool beepLoaded = false;
 
 void Beep() {
@@ -24,12 +24,14 @@ void Beep() {
         }
     }
     
-    if (!beepDevice) {
-        beepDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
-        SDL_ResumeAudioDevice(beepDevice);
+    if (!beepDevice) { //SDL3 TODO REVIEW
+        //beepDevice = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
+        beepDevice = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &wavSpec, NULL, NULL);
+        SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(beepDevice));
     }
 
     if (beepLoaded && beepDevice) {
-        SDL_QueueAudio(beepDevice, wavBuffer, wavLength);
+        //SDL_QueueAudio(beepDevice, wavBuffer, wavLength);
+        SDL_PutAudioStreamData(beepDevice, wavBuffer, wavLength);
     }
 }
