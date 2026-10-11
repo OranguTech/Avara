@@ -19,7 +19,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include <SDL2/SDL_syswm.h>
+#include <SDL3/SDL_syswm.h>
 
 #if defined(_WIN32)
     #include <windows.h>
@@ -111,7 +111,7 @@ static float get_pixel_ratio(SDL_Window *window) {
 
 #else
     Vector2i fbSize, size;
-    SDL_GL_GetDrawableSize(window, &fbSize[0], &fbSize[1]);
+    SDL_GetWindowSizeInPixels(window, &fbSize[0], &fbSize[1]);
     SDL_GetWindowSize(window, &size[0], &size[1]);
     return (float)fbSize[0] / (float)size[0];
 #endif
@@ -352,7 +352,7 @@ void Screen::drawWidgets() {
         return;
 
     SDL_GL_MakeCurrent(mSDLWindow, mGLContext);
-    SDL_GL_GetDrawableSize(mSDLWindow, &mFBSize[0], &mFBSize[1]);
+    SDL_GetWindowSizeInPixels(mSDLWindow, &mFBSize[0], &mFBSize[1]);
     SDL_GetWindowSize(mSDLWindow, &mSize[0], &mSize[1]);
 
 #if defined(_WIN32) || defined(__linux__)
@@ -499,13 +499,13 @@ bool Screen::mouseButtonCallbackEvent(int button, int action, int modifiers) {
             }
         }
 
-        if (action == SDL_PRESSED)
+        if (action == true)
             mMouseState |= 1 << button;
         else
             mMouseState &= ~(1 << button);
 
         auto dropWidget = findWidget(mMousePos);
-        if (mDragActive && action == SDL_RELEASED &&
+        if (mDragActive && action == false &&
             dropWidget != mDragWidget)
             mDragWidget->mouseButtonEvent(
                 mMousePos - mDragWidget->parentPosition(), button,
@@ -516,7 +516,7 @@ bool Screen::mouseButtonCallbackEvent(int button, int action, int modifiers) {
             SDL_SetCursor(mCursors[mCursor]);
         }
 
-        if (action == SDL_PRESSED && (button == SDL_BUTTON_LEFT || button == SDL_BUTTON_RIGHT)) {
+        if (action == true && (button == SDL_BUTTON_LEFT || button == SDL_BUTTON_RIGHT)) {
             mDragWidget = findWidget(mMousePos);
             if (mDragWidget == this)
                 mDragWidget = nullptr;
@@ -528,7 +528,7 @@ bool Screen::mouseButtonCallbackEvent(int button, int action, int modifiers) {
             mDragWidget = nullptr;
         }
 
-        return mouseButtonEvent(mMousePos, button, action == SDL_PRESSED,
+        return mouseButtonEvent(mMousePos, button, action == true,
                                 mModifiers);
     } catch (const std::exception &e) {
         std::cerr << "Caught exception in event handler: " << e.what() << std::endl;
@@ -585,7 +585,7 @@ bool Screen::scrollCallbackEvent(double x, double y) {
 
 bool Screen::resizeCallbackEvent(int, int) {
     Vector2i fbSize, size;
-    SDL_GL_GetDrawableSize(mSDLWindow, &fbSize[0], &fbSize[1]);
+    SDL_GetWindowSizeInPixels(mSDLWindow, &fbSize[0], &fbSize[1]);
     SDL_GetWindowSize(mSDLWindow, &size[0], &size[1]);
 
 #if defined(_WIN32) || defined(__linux__)
@@ -668,34 +668,34 @@ void Screen::moveWindowToFront(Window *window) {
 
 bool Screen::handleSDLEvent(SDL_Event &event) {
     switch(event.type) {
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
+        case SDL_EVENT_KEY_DOWN :
+        case SDL_EVENT_KEY_UP :
             if(event.key.windowID != mWindowID)
                 return false;
             return keyCallbackEvent(event.key.keysym.sym, event.key.keysym.scancode, event.key.state, event.key.keysym.mod);
             break;
 
-        case SDL_TEXTINPUT:
+        case SDL_EVENT_TEXT_INPUT :
             if(event.text.windowID != mWindowID)
                 return false;
             return charCallbackEvent(event.text.text[0]);
             //return charCallbackEvent(utf8_decode(event.text.text, sizeof(event.text.text)));
             break;
 
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
+        case SDL_EVENT_MOUSE_BUTTON_DOWN :
+        case SDL_EVENT_MOUSE_BUTTON_UP :
             if(event.button.windowID != mWindowID)
                 return false;
             return mouseButtonCallbackEvent(event.button.button, event.button.state, 0);
             break;
 
-        case SDL_MOUSEWHEEL:
+        case SDL_EVENT_MOUSE_WHEEL :
             if(event.wheel.windowID != mWindowID)
                 return false;
             return scrollCallbackEvent(event.wheel.x, event.wheel.y);
             break;
 
-        case SDL_MOUSEMOTION:
+        case SDL_EVENT_MOUSE_MOTION :
             if(event.motion.windowID != mWindowID)
                 return false;
             return cursorPosCallbackEvent(event.motion.x, event.motion.y);
@@ -705,14 +705,14 @@ bool Screen::handleSDLEvent(SDL_Event &event) {
             if(event.window.windowID != mWindowID)
                 return false;
             switch(event.window.event) {
-                case SDL_WINDOWEVENT_RESIZED:
-                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                case SDL_EVENT_WINDOW_RESIZED :
+                case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED :
                     return resizeCallbackEvent(event.window.data1, event.window.data2);
                     break;
 
-                case SDL_WINDOWEVENT_FOCUS_GAINED:
-                case SDL_WINDOWEVENT_FOCUS_LOST:
-                    return focusEvent(event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED);
+                case SDL_EVENT_WINDOW_FOCUS_GAINED :
+                case SDL_EVENT_WINDOW_FOCUS_LOST :
+                    return focusEvent(event.window.event == SDL_EVENT_WINDOW_FOCUS_GAINED);
                     break;
             }
             break;

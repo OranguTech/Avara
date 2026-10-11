@@ -421,9 +421,9 @@ bool Text::focusEvent(bool focused) {
 
 bool Text::keyboardEvent(int key, int /* scancode */, int action, int modifiers) {
     if (mEditable && focused()) {
-        if (action == SDL_PRESSED/* || action == GLFW_REPEAT*/) {
+        if (action == true/* || action == GLFW_REPEAT*/) {
             if (key == SDLK_LEFT) {
-                if (modifiers == KMOD_SHIFT) {
+                if (modifiers == SDL_KMOD_SHIFT) {
                     if (mSelectionPos == -1)
                         mSelectionPos = mCursorPos;
                 } else {
@@ -433,7 +433,7 @@ bool Text::keyboardEvent(int key, int /* scancode */, int action, int modifiers)
                 if (mCursorPos > 0)
                     mCursorPos--;
             } else if (key == SDLK_RIGHT) {
-                if (modifiers == KMOD_SHIFT) {
+                if (modifiers == SDL_KMOD_SHIFT) {
                     if (mSelectionPos == -1)
                         mSelectionPos = mCursorPos;
                 } else {
@@ -443,7 +443,7 @@ bool Text::keyboardEvent(int key, int /* scancode */, int action, int modifiers)
                 if (mCursorPos < (int) mValueTemp.length())
                     mCursorPos++;
             } else if (key == SDLK_HOME) {
-                if (modifiers == KMOD_SHIFT) {
+                if (modifiers == SDL_KMOD_SHIFT) {
                     if (mSelectionPos == -1)
                         mSelectionPos = mCursorPos;
                 } else {
@@ -452,7 +452,7 @@ bool Text::keyboardEvent(int key, int /* scancode */, int action, int modifiers)
 
                 mCursorPos = 0;
             } else if (key == SDLK_END) {
-                if (modifiers == KMOD_SHIFT) {
+                if (modifiers == SDL_KMOD_SHIFT) {
                     if (mSelectionPos == -1)
                         mSelectionPos = mCursorPos;
                 } else {
@@ -475,15 +475,15 @@ bool Text::keyboardEvent(int key, int /* scancode */, int action, int modifiers)
             } else if (key == SDLK_RETURN || key == SDLK_KP_ENTER) {
                 if (!mCommitted)
                     focusEvent(false);
-            } else if (key == SDLK_a && (modifiers & SYSTEM_COMMAND_MOD)) {
+            } else if (key == SDLK_A && (modifiers & SYSTEM_COMMAND_MOD)) {
                 mCursorPos = (int) mValueTemp.length();
                 mSelectionPos = 0;
-            } else if (key == SDLK_x && (modifiers & SYSTEM_COMMAND_MOD)) {
+            } else if (key == SDLK_X && (modifiers & SYSTEM_COMMAND_MOD)) {
                 copySelection();
                 deleteSelection();
-            } else if (key == SDLK_c && (modifiers & SYSTEM_COMMAND_MOD)) {
+            } else if (key == SDLK_C && (modifiers & SYSTEM_COMMAND_MOD)) {
                 copySelection();
-            } else if (key == SDLK_v && (modifiers & SYSTEM_COMMAND_MOD)) {
+            } else if (key == SDLK_V && (modifiers & SYSTEM_COMMAND_MOD)) {
                 deleteSelection();
                 pasteFromClipboard();
             }
@@ -587,7 +587,7 @@ void Text::updateCursor(NVGcontext *, float lastx,
                            const NVGglyphPosition *glyphs, int size) {
     // handle mouse cursor events
     if (mMouseDownPos.x != -1) {
-        if (mMouseDownModifier == KMOD_SHIFT) {
+        if (mMouseDownModifier == SDL_KMOD_SHIFT) {
             if (mSelectionPos == -1)
                 mSelectionPos = mCursorPos;
         } else
