@@ -2,7 +2,7 @@
   "name": "avara",
   "version-date": "2026-09-16",
   "dependencies": [
-    "sdl2",
+    "sdl3",
     "glad",
     "gtest",
     "sqlite3"
