@@ -53,7 +53,7 @@ CLevelWindow::CLevelWindow(CApplication *app) : CWindow(app, "Levels") {
     startBtn->setTextPosition(nanogui::Button::TextPosition::Left);
     startBtn->setBackgroundColor(kGUIAccentPositive);
     startBtn->setCallback([app] {
-        if (SDL_GetModState() & KMOD_ALT) {
+        if (SDL_GetModState() & SDL_KMOD_ALT) {
             // if ALT key pressed, start right away
             ((CAvaraAppImpl *)app)->GetGame()->SendStartCommand();
         } else {

@@ -117,22 +117,22 @@ struct NVGglyphPosition;
 
 // Define command key for windows/mac/linux
 #if defined(__APPLE__) || defined(DOXYGEN_DOCUMENTATION_BUILD)
-    /// If on OSX, maps to ``KMOD_GUI``.  Otherwise, maps to ``KMOD_CTRL``.
+    /// If on OSX, maps to ``KMOD_GUI``.  Otherwise, maps to ``SDL_KMOD_CTRL``.
     #define SYSTEM_COMMAND_MOD KMOD_GUI
 #else
-    #define SYSTEM_COMMAND_MOD KMOD_CTRL
+    #define SYSTEM_COMMAND_MOD SDL_KMOD_CTRL
 #endif
 
 NAMESPACE_BEGIN(nanogui)
 
 /// Cursor shapes available to use in GLFW.  Shape of actual cursor determined by Operating System.
 enum class Cursor {
-    Arrow = (int)SDL_SYSTEM_CURSOR_ARROW,  ///< The arrow cursor.
-    IBeam = (int)SDL_SYSTEM_CURSOR_IBEAM,      ///< The I-beam cursor.
+    Arrow = (int)SDL_SYSTEM_CURSOR_DEFAULT,  ///< The arrow cursor.
+    IBeam = (int)SDL_SYSTEM_CURSOR_TEXT,      ///< The I-beam cursor.
     Crosshair = (int)SDL_SYSTEM_CURSOR_CROSSHAIR,  ///< The crosshair cursor.
-    Hand = (int)SDL_SYSTEM_CURSOR_HAND,       ///< The hand cursor.
-    HResize = (int)SDL_SYSTEM_CURSOR_SIZEWE,    ///< The horizontal resize cursor.
-    VResize = (int)SDL_SYSTEM_CURSOR_SIZENS    ///< The vertical resize cursor.
+    Hand = (int)SDL_SYSTEM_CURSOR_POINTER,       ///< The hand cursor.
+    HResize = (int)SDL_SYSTEM_CURSOR_EW_RESIZE,    ///< The horizontal resize cursor.
+    VResize = (int)SDL_SYSTEM_CURSOR_NS_RESIZE    ///< The vertical resize cursor.
     //CursorCount = 6 ///< Not a cursor --- should always be last: enables a loop over the cursor types.
 };
 

@@ -130,7 +130,7 @@ public:
     CSettingsWindow *settingsWindow;
     CMainMenu *mainMenu;
     
-    SDL_GameController *controller; // currently paired controller
+    SDL_Gamepad *controller; // currently paired controller
     uint32_t controllerBaseEvent; // registered with SDL_RegisterEvents
     uint32_t lastControllerEvent; // time of last controller axis polling
     uint32_t controllerPollMillis;

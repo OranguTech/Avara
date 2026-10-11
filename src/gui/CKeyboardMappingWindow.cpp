@@ -84,10 +84,10 @@ bool CKeyboardMappingWindow::editing() {
 
 bool CKeyboardMappingWindow::handleSDLEvent(SDL_Event &event) {
     if (gathering) {
-        if (event.type == SDL_KEYDOWN) {
-            auto sym = event.key.keysym.sym;
-            auto name = SDL_GetKeyName(sym);
-            SDL_Log("%d %s", sym, name);
+        if (event.type == SDL_EVENT_KEY_DOWN) { //https://wiki.libsdl.org/SDL3/README-migration#sdl_eventsh
+            auto key = event.key.key;
+            auto name = SDL_GetKeyName(key);
+            SDL_Log("%d %s", key, name);
             addKeyBind(name);
             gathering = false;
             if (mCallback) mCallback(1);

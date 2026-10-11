@@ -18,6 +18,7 @@
 #include <sstream>
 #include <stdint.h>
 #include <nanogui/tabwidget.h>
+#include <SDL3/SDL_oldnames.h>
 using namespace nanogui;
 
 std::vector<Text *> statuses;
@@ -354,7 +355,7 @@ void CRosterWindow::SendRosterMessage(const char* message) {
     SendRosterMessage(strlen(message), (char*)message);
 }
 
-void CRosterWindow::SendRosterMessage(size_t len, char *message) {
+void CRosterWindow::SendRosterMessage(size_t len, char* message) {
     ((CAvaraAppImpl *)gApplication)->GetNet()->SendRosterMessage(len, message);
     std::string newCaption = chatInput->caption();
     newCaption.append(message, len);  // message not always null-terminated, use len!
@@ -411,18 +412,19 @@ void CRosterWindow::NewChatLine(Str255 playerName, short slot, std::string messa
 }
 
 bool CRosterWindow::handleSDLEvent(SDL_Event &event) {
-    if (event.type == SDL_TEXTINPUT) {
+    if (event.type == SDL_EVENT_TEXT_INPUT) {
         #ifndef __APPLE__
         // we already sent a checkmark, don't send a v
-        if ((SDL_GetModState() & KMOD_ALT) && strcmp(event.text.text, "v") == 0)
+        if ((SDL_GetModState() & SDL_KMOD_ALT) && strcmp(event.text.text, "v") == 0)
             return true;
         #endif
-        SendRosterMessage(strlen(event.text.text), event.text.text);
+        //SDL3 TODO REVIEW: SDL_Event::text.text changes from char to const char* in SDL3. Change it in the function signature and remove the const_cast below? 
+        SendRosterMessage(strlen(event.text.text), const_cast<char*>(event.text.text));
         return true;
-    } else if (event.type == SDL_KEYDOWN) {
+    } else if (event.type == SDL_EVENT_KEY_DOWN) {
         //SDL_Log("CRosterWindow::handleSDLEvent SDL_KEYDOWN");
 
-        switch (event.key.keysym.sym) {
+        switch (event.key.key) {
             case SDLK_UP:
                 SendRosterMessage(1, clearline);
                 ResetChatPrompt();
@@ -451,28 +453,28 @@ bool CRosterWindow::handleSDLEvent(SDL_Event &event) {
                 //SDL_Log("CRosterWindow::handleSDLEvent CLEAR");
 
                 return true;
-            case SDLK_q:
-                if (SDL_GetModState() & KMOD_CTRL) {
+            case SDLK_Q:
+                if (SDL_GetModState() & SDL_KMOD_CTRL) {
                     ((CAvaraAppImpl *)gApplication)->Done();
                     leave();
                     return true;
                 } else
                     return false;
-            case SDLK_r:
-                if (SDL_GetModState() & KMOD_CTRL) {
+            case SDLK_R:
+                if (SDL_GetModState() & SDL_KMOD_CTRL) {
                     ((CAvaraAppImpl *)gApplication)->GetGame()->SendStartCommand();
                     return true;
                 } else
                     return false;
-            case SDLK_g:
-                if (SDL_GetModState() & KMOD_CTRL) {
+            case SDLK_G:
+                if (SDL_GetModState() & SDL_KMOD_CTRL) {
                     SendRosterMessage(1, bellline);
                     return true;
                 } else
                     return false;
             #ifndef __APPLE__
-            case SDLK_v:
-                if (SDL_GetModState() & KMOD_ALT) {
+            case SDLK_V:
+                if (SDL_GetModState() & SDL_KMOD_ALT) {
                     SendRosterMessage(1, checkline);
                     return true;
                 } else
