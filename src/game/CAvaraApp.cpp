@@ -34,16 +34,16 @@
 #include "LevelLoader.h"
 #include "Messages.h"
 #include "ModernOpenGLRenderer.h"
+#include "NVGUtil.h"
 #include "Parser.h"
 #include "Preferences.h"
 #include "System.h"
 #include "Tags.h"
 #include "httplib.h"
-#include "NVGUtil.h"
-#include <glm/glm.hpp>
 
 #include <chrono>
 #include <cmath>
+#include <glm/glm.hpp>
 #include <json.hpp>
 
 // included while we fake things out
@@ -75,11 +75,31 @@ void TrackerPinger(CAvaraAppImpl *app) {
     }
 }
 
-SDL_GameController *FindGameController() {
-    for (int i = 0; i < SDL_NumJoysticks(); i++) {
-        if (SDL_IsGameController(i)) {
-            return SDL_GameControllerOpen(i);
+SDL_Gamepad *FindGameController() {
+    // SDL3 TODO Review https://wiki.libsdl.org/SDL3/README-migration#sdl_joystickh
+    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
+        int i, num_joysticks;
+        SDL_JoystickID *joysticks = SDL_GetJoysticks(&num_joysticks);
+        if (joysticks) {
+            for (i = 0; i < num_joysticks; ++i) {
+                SDL_JoystickID instance_id = joysticks[i];
+                const char *name = SDL_GetJoystickNameForID(instance_id);
+                const char *path = SDL_GetJoystickPathForID(instance_id);
+                SDL_Log("Joystick %" SDL_PRIu32 ": %s%s%s VID 0x%.4x, PID 0x%.4x",
+                    instance_id,
+                    name ? name : "Unknown",
+                    path ? ", " : "",
+                    path ? path : "",
+                    SDL_GetJoystickVendorForID(instance_id),
+                    SDL_GetJoystickProductForID(instance_id));
+                if (SDL_IsGamepad(i)) {
+                    return SDL_OpenGamepad(i);
+                }
+            }
+
+            SDL_free(joysticks);
         }
+        SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
     }
 
     return nullptr;
@@ -113,8 +133,7 @@ int UpdateAxis(ControllerAxis &axis, float value) {
     if (abs(value) < 0.0001f) {
         value = 0.0f;
         axis.active = 0;
-    }
-    else {
+    } else {
         axis.active = 1;
     }
     axis.last = axis.value;
@@ -131,8 +150,7 @@ int UpdateStick(ControllerStick &stick, int32_t x, int32_t y, uint32_t elapsed) 
     if (UpdateAxis(stick.x, x * scale) + UpdateAxis(stick.y, y * scale)) {
         stick.elapsed += elapsed;
         return 1;
-    }
-    else {
+    } else {
         stick.elapsed = 0;
         return 0;
     }
@@ -144,8 +162,7 @@ int UpdateTrigger(ControllerTrigger &trigger, uint16_t t, uint32_t elapsed) {
     if (UpdateAxis(trigger.t, scaled)) {
         trigger.elapsed += elapsed;
         return 1;
-    }
-    else {
+    } else {
         trigger.elapsed = 0;
         return 0;
     }
@@ -163,7 +180,7 @@ CAvaraAppImpl::CAvaraAppImpl() : CApplication("Avara") {
     InitStick(sticks.right);
     InitTrigger(triggers.left);
     InitTrigger(triggers.right);
-    
+
     itsGame = std::make_unique<CAvaraGame>(Get<FrameTime>(kFrameTimeTag));
     gCurrentGame = itsGame.get();
 
@@ -263,17 +280,15 @@ CAvaraAppImpl::~CAvaraAppImpl() {
 
 void CAvaraAppImpl::UpdateGUIState(GUIState g) {
     auto oldState = itsGUIState;
-    if (g != GUIState::title &&
-        g != GUIState::hostServer &&
-        g != GUIState::joinedServer) {
-        backButton->setCallback([this, oldState] () {
+    if (g != GUIState::title && g != GUIState::hostServer && g != GUIState::joinedServer) {
+        backButton->setCallback([this, oldState]() {
             UpdateGUIState(oldState);
             backButton->setVisible(false);
         });
         backButton->setVisible(true);
         backButton->setNeedsLayout();
-    }
-    else backButton->setVisible(false);
+    } else
+        backButton->setVisible(false);
     for (auto win : windowList) {
         win->setVisible(false);
     }
@@ -317,12 +332,11 @@ void CAvaraAppImpl::UpdateGUIState(GUIState g) {
     itsGUIState = g;
 }
 
-
 void CAvaraAppImpl::Done() {
     // This will trigger a clean disconnect if connected.
     gameNet->ChangeNet(kNullNet, "");
     if (controller)
-        SDL_GameControllerClose(controller);
+        SDL_CloseGamepad(controller);
     CApplication::Done();
 }
 
@@ -338,19 +352,19 @@ void CAvaraAppImpl::idle() {
     uint32_t elapsed = procTime - lastControllerEvent;
     if (controller && elapsed > controllerPollMillis) {
         int controllerActive = 0;
-        
-        int16_t leftX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
-        int16_t leftY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+
+        int16_t leftX = SDL_GetGamepadAxis(controller, SDL_GAMEPAD_AXIS_LEFTX);
+        int16_t leftY = SDL_GetGamepadAxis(controller, SDL_GAMEPAD_AXIS_LEFTY);
         controllerActive += UpdateStick(sticks.left, leftX, leftY, elapsed);
-        
-        int16_t rightX = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX);
-        int16_t rightY = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY);
+
+        int16_t rightX = SDL_GetGamepadAxis(controller, SDL_GAMEPAD_AXIS_RIGHTX);
+        int16_t rightY = SDL_GetGamepadAxis(controller, SDL_GAMEPAD_AXIS_RIGHTY);
         controllerActive += UpdateStick(sticks.right, rightX, rightY, elapsed);
-        
-        int16_t leftT = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+
+        int16_t leftT = SDL_GetGamepadAxis(controller, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
         controllerActive += UpdateTrigger(triggers.left, leftT, elapsed);
 
-        int16_t rightT = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+        int16_t rightT = SDL_GetGamepadAxis(controller, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
         controllerActive += UpdateTrigger(triggers.right, rightT, elapsed);
 
         if (controllerActive) {
@@ -360,7 +374,7 @@ void CAvaraAppImpl::idle() {
             controllerEvent.user.data2 = &triggers;
             SDL_PushEvent(&controllerEvent);
         }
-        
+
         lastControllerEvent = procTime;
     }
 
@@ -380,9 +394,10 @@ void CAvaraAppImpl::idle() {
 void CAvaraAppImpl::drawContents() {
     if (animatePreview) {
         auto vp = gRenderer->viewParams;
-        Fixed radius = 0.6*previewRadius + 0.4*FMul(previewRadius, FOneCos(previewAngle*0.7));
+        Fixed radius = 0.6 * previewRadius + 0.4 * FMul(previewRadius, FOneCos(previewAngle * 0.7));
         Fixed x = itsGame->extentCenter[0] + FMul(radius, FOneCos(previewAngle));
-        Fixed y = itsGame->extentCenter[1] + FMul(std::min(itsGame->extentCenter[1], FIX(100)), FOneSin(previewAngle) + FIX1);
+        Fixed y =
+            itsGame->extentCenter[1] + FMul(std::min(itsGame->extentCenter[1], FIX(100)), FOneSin(previewAngle) + FIX1);
         Fixed z = itsGame->extentCenter[2] + FMul(radius, FOneSin(previewAngle));
         vp->LookFrom(x, y, z);
         vp->LookAt(itsGame->extentCenter[0], itsGame->extentCenter[1], itsGame->extentCenter[2]);
@@ -415,21 +430,28 @@ void CAvaraAppImpl::WindowResized(int width, int height) {
 
 void CAvaraAppImpl::PrefChanged(std::string name) {
     CApplication::PrefChanged(name);
-    if (itsGame) itsGame->ReadGamePrefs();
-    if (gRenderer) gRenderer->ApplyPrefs(name);
+    if (itsGame)
+        itsGame->ReadGamePrefs();
+    if (gRenderer)
+        gRenderer->ApplyPrefs(name);
 }
 
 bool CAvaraAppImpl::handleSDLEvent(SDL_Event &event) {
     switch (event.type) {
-        case SDL_CONTROLLERDEVICEADDED:
+        case SDL_EVENT_GAMEPAD_ADDED:
             if (!controller) {
-                controller = SDL_GameControllerOpen(event.cdevice.which);
+                controller = SDL_OpenGamepad(event.cdevice.which);
             }
             break;
-        case SDL_CONTROLLERDEVICEREMOVED:
-            if (controller &&
-                event.cdevice.which == SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
-                SDL_GameControllerClose(controller);
+        case SDL_EVENT_GAMEPAD_REMOVED:
+            if (controller )//&&
+                //SDL3 TODO FIX SDL_GetGamepadJoystick returns a SDL_Joystick* not a SDL_JoystickID
+                //Don't think this was ever working since it was a cdevice.
+                //event.gdevice.which == SDL_JoystickID(SDL_GetGamepadJoystick(controller)))
+                {
+                
+                SDL_CloseGamepad(controller);
+                SDL_Log("Controller disconnected, looking for another one...\n");
                 controller = FindGameController();
             }
             break;
@@ -445,7 +467,7 @@ bool CAvaraAppImpl::handleSDLEvent(SDL_Event &event) {
         for (int i = 0; i < windowList.size(); i++) {
             if (windowList[i]->editing()) {
                 if (CApplication::handleSDLEvent(event))
-                return true;
+                    return true;
             }
         }
 
@@ -463,7 +485,6 @@ void CAvaraAppImpl::drawAll() {
     }
 }
 
-
 void CAvaraAppImpl::GameStarted(LevelInfo &loadedLevel) {
     auto vp = gRenderer->viewParams;
     animatePreview = false;
@@ -474,13 +495,13 @@ void CAvaraAppImpl::GameStarted(LevelInfo &loadedLevel) {
     levelWindow->UpdateRecents();
     if (controller) {
         auto color = itsGame->GetLocalTeamColor();
-        SDL_GameControllerSetLED(controller, color.GetR(), color.GetG(), color.GetB());
+        SDL_SetGamepadLED(controller, color.GetR(), color.GetG(), color.GetB());
     }
 }
 
 void CAvaraAppImpl::Rumble(Fixed hitEnergy) {
     if (controller) {
-        SDL_GameControllerRumble(controller, 0x00FF, 0xFF00, 250);
+        SDL_RumbleGamepad(controller, 0x00FF, 0xFF00, 250);
     }
 }
 
@@ -503,7 +524,7 @@ bool CAvaraAppImpl::DoCommand(int theCommand) {
         case kGetReadyToStartCmd:
             break;
         case kNetChangedCmd: {
-            switch(gameNet->netStatus) {
+            switch (gameNet->netStatus) {
                 case kNullNet:
                     UpdateGUIState(GUIState::title);
                     break;
@@ -520,7 +541,8 @@ bool CAvaraAppImpl::DoCommand(int theCommand) {
         }
         case kKeyboardMappingReset: {
             auto player = CPlayerManagerImpl::LocalPlayer();
-            if (player) player->ResetKeyMap();
+            if (player)
+                player->ResetKeyMap();
         }
         default:
             break;

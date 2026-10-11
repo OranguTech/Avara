@@ -77,6 +77,9 @@ void CPlayerManagerImpl::IPlayerManager(CAvaraGame *theGame, short id, CNetManag
     prevKeyboardActive = keyboardActive;
 }
 
+//SDL3 TODO review the whole keyboard setup
+//https://wiki.libsdl.org/SDL3/BestKeyboardPractices
+
 void CPlayerManagerImpl::ResetKeyMap() {
     keyMap.clear();
     // Mirrors what's in Preferences.h for kKeyboardMappingTag
@@ -125,34 +128,38 @@ void CPlayerManagerImpl::ResetKeyMap() {
             std::string name = (*kit).get<std::string>();
             SDL_Keycode key = SDL_GetKeyFromName(name.c_str());
             if(key == SDLK_UNKNOWN) {
+//SDL3 TODO REVIEW SDL_SCANCODE_AC_FORWARD and SDL_SCANCODE_AC_STOP are not defined in SDL3, so we need to find an alternative for mouse buttons
                 if(name == "Right Mouse") {
-                    keyMap[SDL_SCANCODE_APP1] |= cmd;
+                    //keyMap[SDL_SCANCODE_AC_FORWARD] |= cmd;
                 }
                 else if(name == "Middle Mouse") {
-                    keyMap[SDL_SCANCODE_APP2] |= cmd;
+                    //keyMap[SDL_SCANCODE_AC_STOP] |= cmd;
                 }
             }
-            else {
-                SDL_Scancode scan = SDL_GetScancodeFromKey(key);
+            else { 
+                SDL_Keymod mod = SDL_GetModState();
+                //SDL3 TODO OMGWTFBBQ
+                SDL_Scancode scan = SDL_GetScancodeFromKey(key, NULL);
                 keyMap[scan] |= cmd;
             }
         }
     }
     itsGame->itsApp->Set(kKeyboardMappingTag, newMap);
-
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_DPAD_UP] = (1 << kfuScoutControl) | (1 << kfuForward);
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_DPAD_DOWN] = (1 << kfuScoutControl) | (1 << kfuReverse);
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_DPAD_LEFT] = (1 << kfuScoutControl) | (1 << kfuLeft);
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_DPAD_RIGHT] = (1 << kfuScoutControl) | (1 << kfuRight);
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_A] = 1 << kfuJump;
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_B] = (1 << kfuScoutControl) | (1 << kfuAimForward);
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_X] = 1 << kfuBoostEnergy;
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_Y] = 1 << kfuScoutView;
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_RIGHTSTICK] = 1 << kfuAimForward;
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_LEFTSHOULDER] = 1 << kfuLoadMissile;
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_RIGHTSHOULDER] = 1 << kfuLoadGrenade;
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_BACK] = 1 << kfuAbortGame;
-    controllerButtonMap[SDL_CONTROLLER_BUTTON_START] = 1 << kfuPauseGame;
+//SDL3 TODO REVIEW map naming and possible auto-labeling.
+//https://wiki.libsdl.org/SDL3/README-migration#sdl_gamecontrollerh
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_DPAD_UP] = (1 << kfuScoutControl) | (1 << kfuForward);
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_DPAD_DOWN] = (1 << kfuScoutControl) | (1 << kfuReverse);
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_DPAD_LEFT] = (1 << kfuScoutControl) | (1 << kfuLeft);
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_DPAD_RIGHT] = (1 << kfuScoutControl) | (1 << kfuRight);
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_NORTH] = 1 << kfuJump;
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_SOUTH] = (1 << kfuScoutControl) | (1 << kfuAimForward);
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_EAST] = 1 << kfuBoostEnergy;
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_WEST] = 1 << kfuScoutView;
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_RIGHT_STICK] = 1 << kfuAimForward;
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_LEFT_SHOULDER] = 1 << kfuLoadMissile;
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER] = 1 << kfuLoadGrenade;
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_BACK] = 1 << kfuAbortGame;
+    controllerButtonMap[SDL_GAMEPAD_BUTTON_START] = 1 << kfuPauseGame;
 }
 
 void CPlayerManagerImpl::SetPlayer(CAbstractPlayer *thePlayer) {
@@ -160,7 +167,7 @@ void CPlayerManagerImpl::SetPlayer(CAbstractPlayer *thePlayer) {
 }
 
 uint32_t CPlayerManagerImpl::DoMouseControl(Point *deltaMouse, Boolean doCenter) {
-    int x, y;
+    float x, y; //SDL3
     uint32_t state = SDL_GetMouseState(&x, &y);
     deltaMouse->h = x - mouseCenterPosition.h;
     deltaMouse->v = y - mouseCenterPosition.v;
@@ -224,7 +231,10 @@ void FrameFunctionToPacket(FrameFunction *ff, PacketInfo *outPacket, short slot)
 
 uint32_t CPlayerManagerImpl::GetKeyBits() {
     uint32_t keys = 0;
-    const uint8_t *state = SDL_GetKeyboardState(NULL);
+    //SDL3
+    //const uint8_t *state = SDL_GetKeyboardState(NULL);
+    const bool *state = SDL_GetKeyboardState(NULL);
+    
     for (auto it = keyMap.begin(); it != keyMap.end(); ++it) {
         if (state[it->first])
             keys |= it->second;
@@ -285,56 +295,58 @@ void CPlayerManagerImpl::HandleEvent(SDL_Event &event) {
     switch (event.type) {
         case SDL_EVENT_KEY_DOWN :
             // only add to keysDown if it's NOT from a keyboard repeat
-            if (event.key.repeat == 0) {
-                HandleKeyDown(keyMap[event.key.keysym.scancode]);
+            if (event.key.repeat == false) {
+                HandleKeyDown(keyMap[event.key.scancode]);
             }
 
             if (TESTFUNC(kfuTypeText, keysDown)) {
                 keyboardActive = !keyboardActive;
                 if (keyboardActive) {
-                    SDL_StartTextInput();
+                    //SDL3 TODO FIX OMGWTFBBQ Need the SDL window
+                    /* SDL_StartTextInput(); */
                 }
                 else {
                     inputBuffer.push_back('\r');
-                    SDL_StopTextInput();
+                    //SDL3 TODO FIX OMGWTFBBQ Need the SDL window
+                    //SDL_StopTextInput();
                 }
             }
 
             // Handle delete and backspace in chat mode
             if (keyboardActive &&
-                event.key.keysym.sym == SDLK_BACKSPACE) {
+                event.key.key == SDLK_BACKSPACE) {
                 inputBuffer.push_back('\b');
             }
 
             if (keyboardActive &&
-                (event.key.keysym.sym == SDLK_DELETE ||
-                 event.key.keysym.sym == SDLK_CLEAR)) {
+                (event.key.key == SDLK_DELETE ||
+                 event.key.key == SDLK_CLEAR)) {
                 inputBuffer.push_back('\x1B');
             }
 
             break;
         case SDL_EVENT_TEXT_INPUT :
             if (keyboardActive) {
-                for(char* a_char = event.text.text; *a_char; ++a_char) {
+                for(const char* a_char = event.text.text; *a_char; ++a_char) { //SDL3 TODO REVIEW IDKWhatImDoing.gif
                     inputBuffer.push_back(*a_char);
                 }
             }
             break;
         case SDL_EVENT_KEY_UP :
-            HandleKeyUp(keyMap[event.key.keysym.scancode]);
+            HandleKeyUp(keyMap[event.key.scancode]);
             break;
         case SDL_EVENT_GAMEPAD_BUTTON_DOWN :
-            HandleKeyDown(controllerButtonMap[event.cbutton.button]);
+            HandleKeyDown(controllerButtonMap[event.gbutton.button]);
             break;
         case SDL_EVENT_GAMEPAD_BUTTON_UP :
-            HandleKeyUp(controllerButtonMap[event.cbutton.button]);
+            HandleKeyUp(controllerButtonMap[event.gbutton.button]);
             break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN :
             if(event.button.button == SDL_BUTTON_RIGHT) {
-                HandleKeyDown(keyMap[SDL_SCANCODE_APP1]);
+                HandleKeyDown(keyMap[SDL_SCANCODE_AC_FORWARD]);
             }
             else if(event.button.button == SDL_BUTTON_MIDDLE) {
-                HandleKeyDown(keyMap[SDL_SCANCODE_APP2]);
+                HandleKeyDown(keyMap[SDL_SCANCODE_AC_STOP]);
             }
             else {
                 buttonStatus |= kbuWentDown;
@@ -344,10 +356,10 @@ void CPlayerManagerImpl::HandleEvent(SDL_Event &event) {
             break;
         case SDL_EVENT_MOUSE_BUTTON_UP :
             if(event.button.button == SDL_BUTTON_RIGHT) {
-                HandleKeyUp(keyMap[SDL_SCANCODE_APP1]);
+                HandleKeyUp(keyMap[SDL_SCANCODE_AC_FORWARD]);
             }
             else if(event.button.button == SDL_BUTTON_MIDDLE) {
-                HandleKeyUp(keyMap[SDL_SCANCODE_APP2]);
+                HandleKeyUp(keyMap[SDL_SCANCODE_AC_STOP]);
             }
             else {
                 buttonStatus |= kbuWentUp;
