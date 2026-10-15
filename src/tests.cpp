@@ -144,7 +144,7 @@ public:
         AssetManager::Init();
         
         // Silence SDL logging with a no-op callback.
-        SDL_LogSetOutputFunction([](void *d, int c, SDL_LogPriority p, const char *m){}, nullptr);
+        SDL_SetLogOutputFunction([](void *d, int c, SDL_LogPriority p, const char *m) {}, nullptr);
     }
     virtual bool DoCommand(int theCommand) {return false;}
     virtual void MessageLine(short index, MsgAlignment align) {}

@@ -50,7 +50,7 @@ static float get_pixel_ratio(SDL_Window *window) {
     //SDL_GetWindowWMInfo(window, &info);
     //HWND hWnd = info.info.win.window;
     HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
-    if (hwnd) {
+    //if (hwnd) {
     HMONITOR monitor = nullptr;
     #if defined(MONITOR_DEFAULTTONEAREST)
         monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
@@ -89,6 +89,8 @@ static float get_pixel_ratio(SDL_Window *window) {
     float ratio = 1.0f;
     FILE *fp;
     /* Try to read the pixel ratio from KDEs config */
+    //SDL3 TODO This too should be able to be done via SDL? https://wiki.libsdl.org/SDL3/README-highdpi
+    //SDL_GetWindowDisplayScale()
     auto currentDesktop = std::getenv("XDG_CURRENT_DESKTOP");
     if (currentDesktop && currentDesktop == std::string("KDE")) {
         fp = popen("kreadconfig5 --group KScreen --key ScaleFactor", "r");

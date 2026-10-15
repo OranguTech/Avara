@@ -33,8 +33,11 @@ HRESULT(WINAPI *SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS dpiAwareness);
 #endif
 
 void SetHiDPI() {
+//SDL3 TODO use SDL3 DPI Awareness. https://wiki.libsdl.org/SDL3/README-highdpi
+//SDL3 Stub
 #ifdef _WIN32
-    void *shcoreDLL = SDL_LoadObject("SHCORE.DLL");
+    // SDL3 TODO: SDL3 has a new way to set DPI awareness, but for now we will use the old method.
+    SDL_SharedObject *shcoreDLL = SDL_LoadObject("SHCORE.DLL");
     SetProcessDpiAwareness =
         (HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS))SDL_LoadFunction(shcoreDLL, "SetProcessDpiAwareness");
     SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
@@ -42,6 +45,7 @@ void SetHiDPI() {
 }
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h> //SDL3 I *think* this is the main entry point for SDL3. "The file with your main() function should include <SDL3/SDL_main.h>, as that is no longer included in SDL.h."
 #include <nanogui/nanogui.h>
 #include <sstream>
 #include <string>
