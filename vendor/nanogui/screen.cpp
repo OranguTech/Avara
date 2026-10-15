@@ -44,13 +44,16 @@ static bool gladInitialized = false;
 /* Calculate pixel ratio for hi-dpi devices. */
 static float get_pixel_ratio(SDL_Window *window) {
 #if defined(_WIN32)
-    SDL_SysWMinfo info;
-    SDL_VERSION(&info.version);
-    SDL_GetWindowWMInfo(window, &info);
-    HWND hWnd = info.info.win.window;
+    // SDL3 https://wiki.libsdl.org/SDL3/README-migration#sdl_syswmh
+    //SDL_SysWMinfo info;
+    //SDL_VERSION(&info.version);
+    //SDL_GetWindowWMInfo(window, &info);
+    //HWND hWnd = info.info.win.window;
+    HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+    if (hwnd) {
     HMONITOR monitor = nullptr;
     #if defined(MONITOR_DEFAULTTONEAREST)
-        monitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+        monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
     #else
         static HMONITOR (WINAPI *MonitorFromWindow_)(HWND, DWORD) = nullptr;
         static bool MonitorFromWindow_tried = false;
