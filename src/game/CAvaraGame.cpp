@@ -853,7 +853,9 @@ void CAvaraGame::GameStart() {
 
     // change the event processing time during the game (0 = poll)
 #ifdef _WIN32
-    nanogui::throttle = 0;   // let 'er rip
+    //nanogui::throttle = 0;   // let 'er rip
+    nanogui::throttle = 1; // let 'er rip
+
 #else
     FrameTime throttle = static_cast<FrameTime>(itsApp->Number(kThrottle));
     if (Debug::IsEnabled("cpu")) {
