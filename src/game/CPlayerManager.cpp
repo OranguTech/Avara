@@ -130,15 +130,15 @@ void CPlayerManagerImpl::ResetKeyMap() {
             if(key == SDLK_UNKNOWN) {
 //SDL3 TODO REVIEW SDL_SCANCODE_AC_FORWARD and SDL_SCANCODE_AC_STOP are not defined in SDL3, so we need to find an alternative for mouse buttons
                 if(name == "Right Mouse") {
-                    //keyMap[SDL_SCANCODE_AC_FORWARD] |= cmd;
+                    keyMap[SDL_SCANCODE_AC_FORWARD] |= cmd;
                 }
                 else if(name == "Middle Mouse") {
-                    //keyMap[SDL_SCANCODE_AC_STOP] |= cmd;
+                    keyMap[SDL_SCANCODE_AC_STOP] |= cmd;
                 }
             }
             else { 
                 SDL_Keymod mod = SDL_GetModState();
-                //SDL3 TODO OMGWTFBBQ
+
                 SDL_Scancode scan = SDL_GetScancodeFromKey(key, NULL);
                 keyMap[scan] |= cmd;
             }

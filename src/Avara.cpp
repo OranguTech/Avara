@@ -45,7 +45,7 @@ void SetHiDPI() {
 }
 
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h> //SDL3 I *think* this is the main entry point for SDL3. "The file with your main() function should include <SDL3/SDL_main.h>, as that is no longer included in SDL.h."
+#include <SDL3/SDL_main.h> //SDL3 REVIEW:I *think* this is the main entry point for SDL3. "The file with your main() function should include <SDL3/SDL_main.h>, as that is no longer included in SDL.h."
 #include <nanogui/nanogui.h>
 #include <sstream>
 #include <string>
