@@ -15,7 +15,7 @@
 #include "CRateSound.h"
 #include "CSoundMixer.h"
 #include "Memory.h"
-
+// SDL3 Review: No SDL seems to be used in this file, but it is included in the original code. Keeping it for now.
 #include <SDL3/SDL.h>
 
 void CSoundHubImpl::CreateSound(short kind) {

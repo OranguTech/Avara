@@ -14,6 +14,8 @@
 #include "Memory.h"
 #include "System.h"
 
+#include <SDL3/SDL.h>
+
 #define DONT_USE_MINIMUM_VOLUME
 
 void AudioCallback(void *userData, uint8_t *stream, int size) {
@@ -51,6 +53,9 @@ void CSoundMixer::SetSoundEnvironment(Fixed speedOfSound, Fixed distanceToOne, i
         maxAdjustedVolume = MAXADJUSTEDVOLUME;
     else
         maxAdjustedVolume = MAXADJUSTEDVOLUME / 2;
+
+    // SDL3 Review: This is a requirement to do *somewhere*, is this a good place?
+    SDL_InitSubSystem(SDL_INIT_AUDIO); // SDL3 Requirement.
 }
 
 /*
@@ -100,8 +105,8 @@ void CSoundMixer::ISoundMixer(Fixed sampRate,
     Boolean sample16Enable,
     Boolean interpolateEnable,
     Boolean openAudioDevice) {
-    //OSErr iErr;
-    //int globTemp;
+    // OSErr iErr;
+    // int globTemp;
     short i, j;
     Vector rightVect = {FIX1, 0, 0, 0};
 
@@ -201,7 +206,7 @@ void CSoundMixer::ISoundMixer(Fixed sampRate,
     frameCounter = -2;
 
     if (openAudioDevice) {
-        SDL_AudioSpec want, have;
+        SDL_AudioSpec want; // have; TODO REVIEW "have" is never used?,
 
         SDL_memset(&want, 0, sizeof(want));
         want.freq = samplingRate / 65536;
@@ -210,17 +215,21 @@ void CSoundMixer::ISoundMixer(Fixed sampRate,
         /* want.samples = soundBufferSize;
         want.callback = AudioCallback;
         want.userdata = this; */
-        //SDL3 TODO
-        outputDevice = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, const_cast<SDL_AudioSpec*>(&want));
-        SDL_Log("Sound device (id=%d): format=%d channels=%d samples=%d size=%d\n",
+        // SDL3 TODO
+        outputDevice = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, const_cast<SDL_AudioSpec *>(&want));
+        if (outputDevice == 0) {
+            SDL_Log("Failed to open audio: %s", SDL_GetError());
+        } else {
+            SDL_Log("Sound device (id=%d): format=%d channels=%d \n", //samples=%d size=%d
                 outputDevice,
                 want.format,
-                want.channels
-                /* want.samples,
-                want.size */
-            );
+                want.channels);
+            /* want.samples,
+            want.size */
+
+            SDL_ResumeAudioDevice(outputDevice);
+        }
     }
-    SDL_ResumeAudioDevice(outputDevice);
 }
 
 void CSoundMixer::PrepareScaleLookup() {
@@ -280,7 +289,7 @@ void CSoundMixer::SilenceBuffers() {
 }
 
 void CSoundMixer::Dispose() {
-    //OSErr iErr;
+    // OSErr iErr;
     short i;
     MixerInfo *mix;
 
