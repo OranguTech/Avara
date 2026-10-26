@@ -12,8 +12,8 @@ env:
 
 jobs:
   Ubuntu:
-    name: Ubuntu Latest
-    runs-on: ubuntu-latest
+    name: Linux
+    runs-on: ubuntu-26.04
     steps:
     - name: install dependencies
       run: |
