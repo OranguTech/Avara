@@ -838,11 +838,9 @@ void CAvaraGame::GameStart() {
         itsNet->FrameAction();
     }
 
-    // SDL_ShowCursor(SDL_DISABLE);
-    // SDL_CaptureMouse(SDL_TRUE);
 
-    //SDL3 TODO FIX OMGWTFBBQ Need the SDL window
-    //SDL_SetWindowRelativeMouseMode(mSDLWindow, true);
+    //SDL3 had to change how to access the SDL window
+    SDL_SetWindowRelativeMouseMode(itsApp->sdlWindow(), true);
 #ifdef WIN32
 #else
     //SDL3 "relative mode is always implemented at the hardware level or reported as unavailable"
@@ -1092,11 +1090,9 @@ CPlayerManager *CAvaraGame::FindPlayerManager(CAbstractPlayer *thePlayer) {
 
 void CAvaraGame::StopGame() {
     soundHub->HushFlag(true);
-    //SDL3 TODO FIX OMGWTFBBQ Need the SDL window
-    //SDL_SetWindowRelativeMouseMode(mSDLWindow, false);
-    //SDL_StartTextInput();
-    // SDL_CaptureMouse(SDL_FALSE);
-    // SDL_ShowCursor(SDL_ENABLE);
+    //SDL3 had to change how to access the SDL window
+    SDL_SetWindowRelativeMouseMode(itsApp->sdlWindow(), false);
+    SDL_StartTextInput(itsApp->sdlWindow());
 }
 
 void CAvaraGame::Render() {

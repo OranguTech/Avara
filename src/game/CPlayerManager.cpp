@@ -231,8 +231,7 @@ void FrameFunctionToPacket(FrameFunction *ff, PacketInfo *outPacket, short slot)
 
 uint32_t CPlayerManagerImpl::GetKeyBits() {
     uint32_t keys = 0;
-    //SDL3
-    //const uint8_t *state = SDL_GetKeyboardState(NULL);
+    // SDL3 changed to return const bool* instead of const uint8_t*
     const bool *state = SDL_GetKeyboardState(NULL);
     
     for (auto it = keyMap.begin(); it != keyMap.end(); ++it) {
@@ -302,13 +301,13 @@ void CPlayerManagerImpl::HandleEvent(SDL_Event &event) {
             if (TESTFUNC(kfuTypeText, keysDown)) {
                 keyboardActive = !keyboardActive;
                 if (keyboardActive) {
-                    //SDL3 TODO FIX OMGWTFBBQ Need the SDL window
-                    /* SDL_StartTextInput(); */
+                    // SDL3 had to change how to access the SDL window
+                    SDL_StartTextInput(gApplication->sdlWindow());
                 }
                 else {
                     inputBuffer.push_back('\r');
-                    //SDL3 TODO FIX OMGWTFBBQ Need the SDL window
-                    //SDL_StopTextInput();
+                    // SDL3 had to change how to access the SDL window
+                    SDL_StopTextInput(gApplication->sdlWindow());
                 }
             }
 
