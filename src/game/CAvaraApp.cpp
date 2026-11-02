@@ -77,7 +77,7 @@ void TrackerPinger(CAvaraAppImpl *app) {
 
 SDL_Gamepad *FindGameController() {
     // SDL3 TODO Review https://wiki.libsdl.org/SDL3/README-migration#sdl_joystickh
-    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
+    if (SDL_InitSubSystem(SDL_INIT_GAMEPAD)) {
         int i, num_joysticks;
         SDL_JoystickID *joysticks = SDL_GetJoysticks(&num_joysticks);
         if (joysticks) {
@@ -440,14 +440,14 @@ bool CAvaraAppImpl::handleSDLEvent(SDL_Event &event) {
     switch (event.type) {
         case SDL_EVENT_GAMEPAD_ADDED:
             if (!controller) {
-                controller = SDL_OpenGamepad(event.cdevice.which);
+                controller = SDL_OpenGamepad(event.gdevice.which);
             }
             break;
         case SDL_EVENT_GAMEPAD_REMOVED:
-            if (controller )//&&
-                //SDL3 TODO FIX SDL_GetGamepadJoystick returns a SDL_Joystick* not a SDL_JoystickID
-                //Don't think this was ever working since it was a cdevice.
-                //event.gdevice.which == SDL_JoystickID(SDL_GetGamepadJoystick(controller)))
+            if (controller) //&&
+                // SDL3 TODO FIX SDL_GetGamepadJoystick returns a SDL_Joystick* not a SDL_JoystickID
+                // Don't think this was ever working since it was a cdevice.
+                event.gdevice.which == SDL_JoystickID(SDL_GetGamepadJoystick(controller));
                 {
                 
                 SDL_CloseGamepad(controller);
